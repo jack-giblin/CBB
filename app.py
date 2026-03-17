@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # --- CONFIGURATION ---
-st.set_page_config(page_title="CBB March Madness Predictor", page_icon="🏀")
+st.set_page_config(page_title="CBB 2026 March Madness Predictor", page_icon="🏀")
 
 @st.cache_data
 def load_data():
@@ -15,7 +15,7 @@ def load_data():
 
 # --- APP UI ---
 st.title("🏀 CBB March Madness Predictor")
-st.markdown("### Neutral Site Tournament Mode")
+st.markdown("### 2026 Tournament Edition (Neutral Site)")
 
 df, teams = load_data()
 
@@ -24,33 +24,34 @@ if not teams:
 else:
     col1, col2 = st.columns(2)
     with col1:
-        team_a = st.selectbox("Team 1", teams, key='a')
+        team_a = st.selectbox("Away Team", teams, key='a')
     with col2:
-        team_b = st.selectbox("Team 2", teams, index=1, key='b')
+        team_b = st.selectbox("Home Team", teams, index=1, key='b')
 
-    if st.button("Generate Tournament Prediction", use_container_width=True):
-        # 1. Get Stats
+    if st.button("Predict Score", use_container_width=True):
+        # 1. Get Team Stats
         t1 = df[df['TEAM'] == team_a].iloc[0]
         t2 = df[df['TEAM'] == team_b].iloc[0]
 
-        # 2. 2026 League Averages (Estimated for Normalization)
-        lg_eff = 105.5
-        lg_tempo = 68.5
+        # 2. 2026 National Averages
+        # These constants are the "anchor" that prevents scores from inflating
+        LG_EFF = 105.5  # National Avg Points per 100 possessions
+        LG_TEMPO = 68.5 # National Avg Possessions per game
 
         # 3. Calculate Matchup Tempo (Possessions)
-        # Formula: (T1 Tempo * T2 Tempo) / League Average
-        match_tempo = (t1['ADJ_T'] * t2['ADJ_T']) / lg_tempo
+        # Using the standard KenPom possession formula
+        match_tempo = (t1['ADJ_T'] * t2['ADJ_T']) / LG_TEMPO
 
-        # 4. Calculate Expected Points Per 100 Possessions
-        # Formula: (Offense + Defense - League Average)
-        t1_eff_v_t2 = t1['ADJOE'] + t2['ADJDE'] - lg_eff
-        t2_eff_v_t1 = t2['ADJOE'] + t1['ADJDE'] - lg_eff
+        # 4. Corrected Additive Efficiency Formula
+        # Predicted Pts = (Team Offense + Opponent Defense - League Average)
+        t1_eff = t1['ADJOE'] + t2['ADJDE'] - LG_EFF
+        t2_eff = t2['ADJOE'] + t1['ADJDE'] - LG_EFF
 
-        # 5. Final Score Calculation
-        score_a = (t1_eff_v_t2 * match_tempo) / 100
-        score_b = (t2_eff_v_t1 * match_tempo) / 100
+        # 5. Final Score Calculation (Points per possession * total possessions)
+        score_a = (t1_eff * match_tempo) / 100
+        score_b = (t2_eff * match_tempo) / 100
 
-        # --- RESULTS ---
+        # --- DISPLAY RESULTS ---
         st.divider()
         res1, res2 = st.columns(2)
         res1.metric(team_a, round(score_a, 1))
@@ -60,9 +61,10 @@ else:
         spread = round(abs(score_a - score_b), 1)
         winner = team_a if score_a > score_b else team_b
 
-        st.subheader(f"📊 Market Analysis")
-        st.write(f"**Predicted Winner:** {winner} by {spread}")
-        st.write(f"**Predicted Total:** {total_pts}")
+        st.subheader(f"📊 Market Prediction")
+        st.write(f"**Final Score:** {winner} by {spread}")
+        st.write(f"**Total Points (O/U):** {total_pts}")
         
-        st.info("Note: Neutral site settings applied (No Home Court Advantage).")
+        st.info("Tournament Mode: Using neutral court settings and 2026 league normalization.")
+
 

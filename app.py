@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # --- CONFIGURATION ---
-st.set_page_config(page_title="CBB +EV Predictor", page_icon="💰")
+st.set_page_config(page_title="CBB +EV Totals Engine", page_icon="🏀")
 
 @st.cache_data
 def load_data():
@@ -14,8 +14,8 @@ def load_data():
         return None, []
 
 # --- APP UI ---
-st.title("💰 CBB +EV Betting Engine")
-st.markdown("Compare model predictions to sportsbook lines to find an edge.")
+st.title("🏀 CBB +EV Totals Predictor")
+st.markdown("Enter the sportsbook total to find an edge on the Over/Under.")
 
 df, teams = load_data()
 
@@ -25,67 +25,53 @@ else:
     # 1. Team Selection
     col1, col2 = st.columns(2)
     with col1:
-        team_a = st.selectbox("Away Team", teams, key='a')
+        team_a = st.selectbox("Team 1 (Away)", teams, key='a')
     with col2:
-        team_b = st.selectbox("Home Team", teams, index=1, key='b')
+        team_b = st.selectbox("Team 2 (Home)", teams, index=1, key='b')
 
     # 2. Sportsbook Input
-    st.sidebar.header("Current Sportsbook Lines")
-    sb_spread = st.sidebar.number_input(f"Sportsbook Spread ({team_b} favored = negative)", value=-1.5, step=0.5)
-    sb_total = st.sidebar.number_input("Sportsbook Total (O/U)", value=145.0, step=0.5)
+    st.divider()
+    sb_total = st.number_input("Enter Sportsbook Total (O/U)", value=158.5, step=0.5)
 
-    if st.button("Analyze for +EV Value", use_container_width=True):
-        # Stats & Logic - Using .iloc[0] to fix the TypeError
+    if st.button("Calculate +EV Edge", use_container_width=True):
+        # Stats & Logic
         t1 = df[df['TEAM'] == team_a].iloc[0]
         t2 = df[df['TEAM'] == team_b].iloc[0]
 
-        # 2026 Normalization Constants
+        # 2026 Normalization Constants (Power Conference Baseline)
         LG_EFF, LG_TEMPO = 109.5, 68.3
         
         # Calculate Matchup Tempo
         match_tempo = (t1['ADJ_T'] * t2['ADJ_T']) / LG_TEMPO
         
-        # Calculate Model Scores
+        # Calculate Predicted Team Scores
         score_a = ((t1['ADJOE'] + t2['ADJDE'] - LG_EFF) * match_tempo) / 100
         score_b = ((t2['ADJOE'] + t1['ADJDE'] - LG_EFF) * match_tempo) / 100
         
         model_total = round(score_a + score_b, 1)
-        model_spread = round(score_b - score_a, 1) # Positive = Team B favored
 
-        # --- EV ANALYSIS ---
+        # --- RESULTS & EV ANALYSIS ---
         st.divider()
         
-        # Total Analysis
-        total_diff = model_total - sb_total
-        if abs(total_diff) >= 3.0: # 3.0 point edge threshold for Totals
-            verdict_total = f"✅ BET THE {'OVER' if total_diff > 0 else 'UNDER'} ({abs(total_diff):.1f} pt edge)"
-            total_color = "green"
-        else:
-            verdict_total = "❌ NO VALUE ON TOTAL"
-            total_color = "gray"
-
-        # Spread Analysis
-        # Spread Edge = (Book Spread - Model Spread)
-        spread_edge = abs(sb_spread) - model_spread 
-        if abs(spread_edge) >= 2.0: # 2.0 point edge threshold for Spreads
-            bet_on = team_b if spread_edge > 0 else team_a
-            verdict_spread = f"✅ BET ON {bet_on} ({abs(spread_edge):.1f} pt edge)"
-            spread_color = "green"
-        else:
-            verdict_spread = "❌ NO VALUE ON SPREAD"
-            spread_color = "gray"
-
-        # Display Results
+        # Individual Team Scores
         c1, c2 = st.columns(2)
-        with c1:
-            st.metric("Model Total", model_total)
-            st.markdown(f":{total_color}[{verdict_total}]")
-        with c2:
-            st.metric("Model Spread", f"{team_b} -{model_spread}")
-            st.markdown(f":{spread_color}[{verdict_spread}]")
+        c1.metric(f"{team_a} Predicted Score", round(score_a, 1))
+        c2.metric(f"{team_b} Predicted Score", round(score_b, 1))
 
-        if "✅" not in verdict_total and "✅" not in verdict_spread:
-            st.warning("⚠️ No significant +EV opportunities found. Lines are efficiently priced.")
+        # Total Analysis
+        st.subheader(f"Total Prediction: {model_total}")
+        
+        total_diff = model_total - sb_total
+        # Edge Threshold: 2.5 points difference is usually considered +EV
+        if abs(total_diff) >= 2.5:
+            verdict = f"✅ BET THE {'OVER' if total_diff > 0 else 'UNDER'}"
+            edge_text = f"Edge: {abs(total_diff):.1f} points"
+            st.success(f"**{verdict}** ({edge_text})")
+        else:
+            st.warning("⚠️ NO GOOD BET: Line is too close to model prediction.")
+
+        st.info(f"Model uses neutral site settings with 109.5 power-conference efficiency baseline.")
+
 
 
 

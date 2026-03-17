@@ -33,21 +33,21 @@ else:
         t1 = df[df['TEAM'] == team_a].iloc[0]
         t2 = df[df['TEAM'] == team_b].iloc[0]
 
-        # 2. 2026 National Averages
-        # These constants are the "anchor" that prevents scores from inflating
-        LG_EFF = 105.5  # National Avg Points per 100 possessions
-        LG_TEMPO = 68.5 # National Avg Possessions per game
+        # 2. 2026 Tournament-Level Averages
+        # Adjusting to 109.5 accounts for the higher efficiency of power teams
+        LG_EFF = 109.5  
+        LG_TEMPO = 68.3 
 
         # 3. Calculate Matchup Tempo (Possessions)
-        # Using the standard KenPom possession formula
+        # (T1 Tempo * T2 Tempo) / League Average
         match_tempo = (t1['ADJ_T'] * t2['ADJ_T']) / LG_TEMPO
 
-        # 4. Corrected Additive Efficiency Formula
-        # Predicted Pts = (Team Offense + Opponent Defense - League Average)
+        # 4. Professional Additive Efficiency Formula
+        # This prevents "double-counting" elite offenses
         t1_eff = t1['ADJOE'] + t2['ADJDE'] - LG_EFF
         t2_eff = t2['ADJOE'] + t1['ADJDE'] - LG_EFF
 
-        # 5. Final Score Calculation (Points per possession * total possessions)
+        # 5. Final Score Calculation
         score_a = (t1_eff * match_tempo) / 100
         score_b = (t2_eff * match_tempo) / 100
 
@@ -58,13 +58,17 @@ else:
         res2.metric(team_b, round(score_b, 1))
         
         total_pts = round(score_a + score_b, 1)
-        spread = round(abs(score_a - score_b), 1)
-        winner = team_a if score_a > score_b else team_b
-
-        st.subheader(f"📊 Market Prediction")
-        st.write(f"**Final Score:** {winner} by {spread}")
-        st.write(f"**Total Points (O/U):** {total_pts}")
+        spread_val = round(score_b - score_a, 1) # Positive means Team B (Home) is favored
         
-        st.info("Tournament Mode: Using neutral court settings and 2026 league normalization.")
+        st.subheader(f"📊 Market Comparison")
+        st.write(f"**Predicted Total:** {total_pts}")
+        
+        if spread_val > 0:
+            st.write(f"**Predicted Line:** {team_b} -{abs(spread_val)}")
+        else:
+            st.write(f"**Predicted Line:** {team_a} -{abs(spread_val)}")
+        
+        st.info("Tournament Mode: Using 2026 power-conference normalization (LG_EFF: 109.5).")
+
 
 

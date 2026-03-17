@@ -10,7 +10,7 @@ def load_data():
         df = pd.read_csv('cbb26.csv')
         df.columns = df.columns.str.strip()
         return df, sorted(df['TEAM'].unique())
-    except:
+    except Exception as e:
         return None, []
 
 # --- APP UI ---
@@ -31,17 +31,21 @@ else:
 
     # 2. Sportsbook Input
     st.sidebar.header("Current Sportsbook Lines")
-    sb_spread = st.sidebar.number_input(f"Spread ({team_b} favored = negative)", value=0.0, step=0.5)
-    sb_total = st.sidebar.number_input("Game Total (O/U)", value=145.0, step=0.5)
+    sb_spread = st.sidebar.number_input(f"Sportsbook Spread ({team_b} favored = negative)", value=-1.5, step=0.5)
+    sb_total = st.sidebar.number_input("Sportsbook Total (O/U)", value=145.0, step=0.5)
 
     if st.button("Analyze for +EV Value", use_container_width=True):
-        # Stats & Logic
-        t1 = df[df['TEAM'] == team_a].iloc
-        t2 = df[df['TEAM'] == team_b].iloc
+        # Stats & Logic - Using .iloc[0] to fix the TypeError
+        t1 = df[df['TEAM'] == team_a].iloc[0]
+        t2 = df[df['TEAM'] == team_b].iloc[0]
 
+        # 2026 Normalization Constants
         LG_EFF, LG_TEMPO = 109.5, 68.3
+        
+        # Calculate Matchup Tempo
         match_tempo = (t1['ADJ_T'] * t2['ADJ_T']) / LG_TEMPO
         
+        # Calculate Model Scores
         score_a = ((t1['ADJOE'] + t2['ADJDE'] - LG_EFF) * match_tempo) / 100
         score_b = ((t2['ADJOE'] + t1['ADJDE'] - LG_EFF) * match_tempo) / 100
         
@@ -53,31 +57,35 @@ else:
         
         # Total Analysis
         total_diff = model_total - sb_total
-        if abs(total_diff) >= 2.5: # 2.5 point edge threshold
-            verdict_total = f"✅ BET THE {'OVER' if total_diff > 0 else 'UNDER'} ({total_diff:+.1f} point edge)"
+        if abs(total_diff) >= 3.0: # 3.0 point edge threshold for Totals
+            verdict_total = f"✅ BET THE {'OVER' if total_diff > 0 else 'UNDER'} ({abs(total_diff):.1f} pt edge)"
+            total_color = "green"
         else:
             verdict_total = "❌ NO VALUE ON TOTAL"
+            total_color = "gray"
 
-        # Spread Analysis (Standardizing to Home Team)
-        # If model says -5 and book says -2, model sees value on favorite
-        spread_edge = sb_spread - model_spread 
-        if abs(spread_edge) >= 1.5: # 1.5 point edge threshold
+        # Spread Analysis
+        # Spread Edge = (Book Spread - Model Spread)
+        spread_edge = abs(sb_spread) - model_spread 
+        if abs(spread_edge) >= 2.0: # 2.0 point edge threshold for Spreads
             bet_on = team_b if spread_edge > 0 else team_a
-            verdict_spread = f"✅ BET ON {bet_on} ({abs(spread_edge):.1f} point edge)"
+            verdict_spread = f"✅ BET ON {bet_on} ({abs(spread_edge):.1f} pt edge)"
+            spread_color = "green"
         else:
             verdict_spread = "❌ NO VALUE ON SPREAD"
+            spread_color = "gray"
 
         # Display Results
         c1, c2 = st.columns(2)
         with c1:
             st.metric("Model Total", model_total)
-            st.write(verdict_total)
+            st.markdown(f":{total_color}[{verdict_total}]")
         with c2:
             st.metric("Model Spread", f"{team_b} -{model_spread}")
-            st.write(verdict_spread)
+            st.markdown(f":{spread_color}[{verdict_spread}]")
 
         if "✅" not in verdict_total and "✅" not in verdict_spread:
-            st.warning("⚠️ No significant +EV opportunities found. Odds are efficiently priced.")
+            st.warning("⚠️ No significant +EV opportunities found. Lines are efficiently priced.")
 
 
 

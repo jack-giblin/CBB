@@ -70,7 +70,7 @@ else:
         else:
             st.warning("⚠️ NO GOOD BET: Line is too close to model prediction.")
 
-        st.info(f"Model uses neutral site settings with 109.5 power-conference efficiency baseline.")
+        st.info(f"Model uses neutral site settings with 114.5 power-conference efficiency baseline.")
 
 
 

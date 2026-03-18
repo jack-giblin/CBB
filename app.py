@@ -39,7 +39,7 @@ else:
         t2 = df[df['TEAM'] == team_b].iloc[0]
 
         # 2026 Normalization Constants (Power Conference Baseline)
-        LG_EFF, LG_TEMPO = 109.5, 68.3
+        LG_EFF, LG_TEMPO = 114.5, 68.3
         
         # Calculate Matchup Tempo
         match_tempo = (t1['ADJ_T'] * t2['ADJ_T']) / LG_TEMPO

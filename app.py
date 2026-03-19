@@ -40,8 +40,8 @@ results = [
         "predicted_total": 142.0,
         "sportsbook_total": 137.5,
         "predicted_winner": "Nebraska",
-        "actual_score_a": 67,
-        "actual_score_b": 71,
+        "actual_score_a": 47,
+        "actual_score_b": 76,
         "actual_winner": "Nebraska"
     },
 ]

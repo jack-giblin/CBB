@@ -75,33 +75,23 @@ else:
         pace = auto_pace
 
         # Base efficiency score
-        # Dividing by avg_efficiency removes double-counting of average
-        # since both ADJOE and ADJDE are already measured against average D1
         base_a = (t1['ADJOE'] * t2['ADJDE'] / avg_efficiency) * (pace / 100)
         base_b = (t2['ADJOE'] * t1['ADJDE'] / avg_efficiency) * (pace / 100)
 
         # EFG adjustment
-        # How much better/worse each team shoots vs opponent's defensive EFG
-        # Anchored against league average so adjustment is relative not absolute
         efg_adj_a = ((t1['EFG_O'] - avg_efg) - (t2['EFG_D'] - avg_efg)) * 0.15
         efg_adj_b = ((t2['EFG_O'] - avg_efg) - (t1['EFG_D'] - avg_efg)) * 0.15
 
         # Turnover adjustment
-        # TOR = turnovers allowed (offensive turnovers, lower is better offensively)
-        # TORD = steals committed (higher means better defensive pressure)
         pace_ratio = pace / 70
         tor_adj_a = ((avg_tor - t1['TOR']) + (t2['TORD'] - avg_tor)) * 0.1 * pace_ratio
         tor_adj_b = ((avg_tor - t2['TOR']) + (t1['TORD'] - avg_tor)) * 0.1 * pace_ratio
 
         # Rebounding adjustment
-        # ORB = offensive rebound rate (higher is better offensively)
-        # DRB = offensive rebound rate allowed (lower is better defensively)
         reb_adj_a = ((t1['ORB'] - avg_orb) - (t2['DRB'] - avg_orb)) * 0.05 * pace_ratio
         reb_adj_b = ((t2['ORB'] - avg_orb) - (t1['DRB'] - avg_orb)) * 0.05 * pace_ratio
 
         # Free throw adjustment
-        # FTR = how often team gets to the line (higher is better offensively)
-        # FTRD = how often opponent gets to the line (lower is better defensively)
         ftr_adj_a = ((t1['FTR'] - avg_ftr) - (t2['FTRD'] - avg_ftr)) * 0.05
         ftr_adj_b = ((t2['FTR'] - avg_ftr) - (t1['FTRD'] - avg_ftr)) * 0.05
 
@@ -120,12 +110,11 @@ else:
         sim_a = np.random.normal(score_a, std_dev, simulations)
         sim_b = np.random.normal(score_b, std_dev, simulations)
 
-        win_pct_a = np.mean(sim_a > sim_b) * 100
-        win_pct_b = 100 - win_pct_a
+        sim_total = sim_a + sim_b
+        median_total = round(np.median(sim_total))
 
         avg_a = np.mean(sim_a)
         avg_b = np.mean(sim_b)
-        avg_total = np.mean(sim_a + sim_b)
 
         winner = team_a if avg_a > avg_b else team_b
 
@@ -135,7 +124,6 @@ else:
         c2.metric(team_b, round(avg_b))
 
         st.success(f"🏆 **Prediction:** {winner} wins!")
-        st.info(f"📊 **Projected Total:** {round(avg_total)} points")
 
         st.divider()
         st.markdown("#### 🎲 Monte Carlo Simulation (10,000 games)")
@@ -145,28 +133,7 @@ else:
             faster games have more possessions and therefore more room for variance.
         """)
 
-        sim_total = sim_a + sim_b
-        median_total = round(np.median(sim_total))
-        over_pct = np.mean(sim_total > median_total) * 100
-        under_pct = 100 - over_pct
-
-        t1, t2, t3 = st.columns(3)
-        t1.metric("Simulated Total", median_total)
-        t2.metric("Over Probability", f"{over_pct:.1f}%")
-        t3.metric("Under Probability", f"{under_pct:.1f}%")
-
-        st.caption("💡 Enter the sportsbook total below to see where the model stands.")
-        book_total = st.number_input("Sportsbook Total", min_value=100.0, max_value=200.0, step=0.5)
-
-        if book_total:
-            over_vs_book = np.mean(sim_total > book_total) * 100
-            under_vs_book = 100 - over_vs_book
-            if over_vs_book > 55:
-                st.success(f"📈 Model favors the **OVER** ({over_vs_book:.1f}% of simulations went over {book_total})")
-            elif under_vs_book > 55:
-                st.success(f"📉 Model favors the **UNDER** ({under_vs_book:.1f}% of simulations went under {book_total})")
-            else:
-                st.info(f"🤷 Model sees this as a toss up — {over_vs_book:.1f}% over, {under_vs_book:.1f}% under")
+        st.metric("Simulated Total", median_total)
 
         st.divider()
         st.markdown("#### 📈 Score Distribution (80% confidence range)")

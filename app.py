@@ -48,7 +48,7 @@ else:
     p2.metric(f"{team_b} ADJ_T", f"{t2['ADJ_T']}")
     p3.metric("Projected Game Tempo", f"{auto_pace}")
 
-      if auto_pace <= 66:
+    if auto_pace <= 66:
         st.caption("🐢 Slow tempo — expect a grind, defensive battle likely.")
     elif auto_pace <= 70:
         st.caption("🏀 Tournament average — March Madness historically averages 68–69 adjusted tempo.")

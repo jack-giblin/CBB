@@ -62,6 +62,14 @@ results = [
         "actual_score_a": 65,
         "actual_score_b": 71,
      },
+    {
+        "team_a": "McNeese",
+        "team_b": "Vanderbilt",
+        "predicted_total": 153.0,
+        "sportsbook_total": 148.5,
+        "actual_score_a": 68,
+        "actual_score_b": 78,
+     },
 ]
 
 @st.cache_data

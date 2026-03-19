@@ -5,11 +5,11 @@ import numpy as np
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
 st.title("🏀 CBB 2026 Score Predictor")
 
-st.caption("""
-    This program forecasts games using KenPom statistical metrics through statistical analysis. 
+st.caption(""" 🚨
+    **This program forecasts games using KenPom metrics through statistical analysis. 
     It accounts for team efficiency on both sides of the ball, pace of play, shooting, turnovers, 
     rebounding, and free throws — but does not factor in injuries, sportsbook shading, 
-    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨
+    coaching adjustments, or the chaos that is March Madness.**
 """)
 
 @st.cache_data

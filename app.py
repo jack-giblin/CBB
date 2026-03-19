@@ -26,9 +26,25 @@ results = [
         "team_a": "TCU",
         "team_b": "Ohio State",
         "predicted_total": 150.5,
-        "sportsbook_total": 144.5,
-        "actual_score_a": 67,
-        "actual_score_b": 71,
+        "sportsbook_total": 146.5,
+        "actual_score_a": 66,
+        "actual_score_b": 74,
+     },
+     {
+        "team_a": "High Point",
+        "team_b": "Wisconsin",
+        "predicted_total": 164.0,
+        "sportsbook_total": 162.5,
+        "actual_score_a": 83,
+        "actual_score_b": 82,
+     },
+    {
+        "team_a": "South Florida",
+        "team_b": "Louisville",
+        "predicted_total": 158.5,
+        "sportsbook_total": 163.5,
+        "actual_score_a": 79,
+        "actual_score_b": 83,
      },
 ]
 

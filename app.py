@@ -17,7 +17,7 @@ results = [
     {
         "team_a": "TCU",
         "team_b": "Ohio State",
-        "predicted_total": 150.5,
+        "predicted_total": 138.5,
         "sportsbook_total": 146.5,
         "actual_score_a": 67,
         "actual_score_b": 63,
@@ -25,7 +25,7 @@ results = [
     {
         "team_a": "High Point",
         "team_b": "Wisconsin",
-        "predicted_total": 164.0,
+        "predicted_total": 1.0,
         "sportsbook_total": 162.5,
         "actual_score_a": 76,
         "actual_score_b": 89,
@@ -90,13 +90,13 @@ else:
 
     # Filter to tournament teams only to anchor averages
     # This prevents inflating scores by comparing against weak D1 teams
-    tournament_df = df[df['SEED'].notna()]
-    avg_efficiency = tournament_df['ADJOE'].mean()
-    avg_efg = tournament_df['EFG_O'].mean()
-    avg_tor = tournament_df['TOR'].mean()
-    avg_orb = tournament_df['ORB'].mean()
-    avg_ftr = tournament_df['FTR'].mean()
-    national_avg_pace = tournament_df['ADJ_T'].mean()
+    top100_df = df.nsmallest(100, 'RK')
+    avg_efficiency = top100_df['ADJOE'].mean()
+    avg_efg = top100_df['EFG_O'].mean()
+    avg_tor = top100_df['TOR'].mean()
+    avg_orb = top100_df['ORB'].mean()
+    avg_ftr = top100_df['FTR'].mean()
+    national_avg_pace = top100_df['ADJ_T'].mean())
 
     st.divider()
     st.markdown("#### ⏱️ Adjusted Tempo")

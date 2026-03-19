@@ -24,9 +24,6 @@ results = [
     #     "actual_score_b": 71,
     #     "actual_winner": "Ohio State"
     # },
-   st.caption("""
-        **Round 64 Results.** 
-    """)
     {
         "team_a": "TCU",
         "team_b": "Ohio State",

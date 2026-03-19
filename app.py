@@ -221,7 +221,7 @@ else:
 
             c1, c2, c3 = st.columns(3)
             c1.metric("Our Total", r["predicted_total"])
-            c2.metric("Book Total At Close", r["sportsbook_total"])
+            c2.metric("Book Total", r["sportsbook_total"])
             c3.metric("Actual Total", actual_total)
 
             st.markdown(f"Model was on the **{model_side}** → {total_result}")

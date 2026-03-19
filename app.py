@@ -46,18 +46,18 @@ else:
         each team's true pace of play.
     """)
 
-    st.divider()
-    st.markdown("#### ⏱️ Quick Notes")
+    p1, p2, p3 = st.columns(3)
+    p1.metric(f"{team_a} ADJ_T", f"{t1['ADJ_T']}")
+    p2.metric(f"{team_b} ADJ_T", f"{t2['ADJ_T']}")
+    p3.metric("Projected Game Tempo", f"{auto_pace}")
+
+        st.divider()
+    st.markdown("#### 🚨 Quick Notes")
     st.caption("""
         **It's worth noting. Our predicted outcomes are based on pure statistical factors. WE HAVE NOT taken in consideration
         injuries, or any other outside influence. Sportsbooks tend to shade lines based on public betting. These outcomes are
         based wholey on numbers.
     """)
-
-    p1, p2, p3 = st.columns(3)
-    p1.metric(f"{team_a} ADJ_T", f"{t1['ADJ_T']}")
-    p2.metric(f"{team_b} ADJ_T", f"{t2['ADJ_T']}")
-    p3.metric("Projected Game Tempo", f"{auto_pace}")
 
     if auto_pace <= 66:
         st.caption("🐢 Slow tempo — expect a grind, defensive battle likely.")

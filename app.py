@@ -51,9 +51,9 @@ else:
     st.divider()
     st.markdown("#### 🚨 Quick Notes")
     st.caption("""
-        **It's worth noting. Our predicted outcomes are based on pure statistical factors. WE HAVE NOT taken in consideration
-        injuries, or any other outside influence. Sportsbooks tend to shade lines based on public betting. These outcomes are
-        based wholey on numbers.
+        **It's worth noting. Our predicted outcomes are based on pure statistical analysis. 
+        This program does not take into account injuries or any other external factors. 
+        Sportsbooks tend to shade lines based on public betting. These outcomes are based wholly on numbers.
     """)
 
     if auto_pace <= 66:

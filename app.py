@@ -114,7 +114,7 @@ else:
     st.divider()
 
     if st.button("Predict Score", use_container_width=True):
-        if st.button("Predict Score", use_container_width=True):
+    if st.button("Predict Score", use_container_width=True):
         st.write(t1[['ADJOE', 'ADJDE', 'ADJ_T']])
         st.write(t2[['ADJOE', 'ADJDE', 'ADJ_T']])
 

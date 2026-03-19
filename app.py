@@ -49,6 +49,12 @@ results = [
         "predicted_winner": "Vanderbilt",
         "actual_winner": "Vanderbilt",
     },
+    {
+        "team_a": "Hawaii",
+        "team_b": "Arkansas",
+        "predicted_winner": "Arkansas",
+        "actual_winner": "Arkansas",
+    },
 ]
 
 @st.cache_data

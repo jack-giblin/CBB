@@ -23,7 +23,7 @@ results = [
         "team_a": "High Point",
         "team_b": "Wisconsin",
         "predicted_winner": "Wisconsin",
-        "actual_winner": "Wisconsin",
+        "actual_winner": "High Point",
     },
     {
         "team_a": "South Florida",

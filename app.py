@@ -175,6 +175,9 @@ else:
     # --- Real Results Section ---
     st.divider()
     st.markdown("#### 📋 Real Results vs Predictions")
+    st.caption("""
+        **Round 64 Results.** 
+    """)
 
     if not results:
         st.caption("No results yet — check back after games are played.")

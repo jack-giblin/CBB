@@ -14,7 +14,7 @@ st.caption("""
 
 # --- Add real results here after each game ---
 results = [
-    # {
+  # {
     #     "team_a": "TCU",
     #     "team_b": "Ohio State",
     #     "predicted_total": 150.5,
@@ -22,6 +22,14 @@ results = [
     #     "actual_score_a": 67,
     #     "actual_score_b": 71,
     # },
+    {
+        "team_a": "TCU",
+        "team_b": "Ohio State",
+        "predicted_total": 150.5,
+        "sportsbook_total": 144.5,
+        "actual_score_a": 67,
+        "actual_score_b": 71,
+     },
 ]
 
 @st.cache_data

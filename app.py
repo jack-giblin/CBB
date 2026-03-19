@@ -103,7 +103,7 @@ else:
         # std_dev is dynamic — faster pace = more possessions = more variance
         # scaled by square root of pace ratio, grounded in probability theory
         simulations = 10000
-        base_std = 7
+        base_std = 10.5
         pace_factor = (pace / national_avg_pace) ** 0.5
         std_dev = base_std * pace_factor
 

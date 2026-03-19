@@ -3,12 +3,12 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
-st.title("🏀 CBB 2026 March Madness Predictor")
+st.title("🏀 CBB 2026 Score Predictor")
 
 st.caption("""
-    🚨 This program forecasts games using KenPom statistical metrics. 
+    This program forecasts games using KenPom statistical metrics. 
     It does not factor in injuries, sportsbook shading, coaching adjustments, 
-    or the chaos that makes March Madness unpredictable.
+    or the chaos that makes March Madness unpredictable. 🚨
 """)
 
 # --- Add real results here after each game ---
@@ -16,50 +16,38 @@ results = [
     {
         "team_a": "TCU",
         "team_b": "Ohio State",
-        "predicted_total": 147.5,
-        "sportsbook_total": 146.5,
-        "actual_score_a": 66,
-        "actual_score_b": 64,
+        "predicted_winner": "Ohio State",
+        "actual_winner": "TCU",
     },
     {
         "team_a": "High Point",
         "team_b": "Wisconsin",
-        "predicted_total": 156.5,
-        "sportsbook_total": 161.5,
-        "actual_score_a": 83,
-        "actual_score_b": 82,
+        "predicted_winner": "Wisconsin",
+        "actual_winner": "Wisconsin",
     },
     {
         "team_a": "South Florida",
         "team_b": "Louisville",
-        "predicted_total": 155.5,
-        "sportsbook_total": 160.5,
-        "actual_score_a": 79,
-        "actual_score_b": 83,
+        "predicted_winner": "Louisville",
+        "actual_winner": "Louisville",
     },
     {
         "team_a": "Troy",
         "team_b": "Nebraska",
-        "predicted_total": 142.0,
-        "sportsbook_total": 139.5,
-        "actual_score_a": 47,
-        "actual_score_b": 76,
+        "predicted_winner": "Nebraska",
+        "actual_winner": "Nebraska",
     },
     {
         "team_a": "Duke",
         "team_b": "Siena",
-        "predicted_total": 142.0,
-        "sportsbook_total": 137.5,
-        "actual_score_a": 71,
-        "actual_score_b": 65,
+        "predicted_winner": "Duke",
+        "actual_winner": "Duke",
     },
     {
         "team_a": "McNeese",
         "team_b": "Vanderbilt",
-        "predicted_total": 149.5,
-        "sportsbook_total": 148.5,
-        "actual_score_a": 68,
-        "actual_score_b": 78,
+        "predicted_winner": "Vanderbilt",
+        "actual_winner": "Vanderbilt",
     },
 ]
 
@@ -91,7 +79,10 @@ else:
     st.markdown("#### ⏱️ Adjusted Tempo")
     st.caption("""
         **What is Adjusted Tempo?** KenPom's Adjusted Tempo (ADJ_T) estimates how many possessions 
-        per 40 minutes a team would play against an average Division I opponent. 
+        per 40 minutes a team would play against an average Division I opponent. Unlike raw possessions 
+        per game, it removes the influence of opponents — so a slow team that played an unusually fast 
+        schedule won't look artificially up-tempo. This gives us a fairer, more accurate picture of 
+        each team's true pace of play.
     """)
 
     p1, p2, p3 = st.columns(3)
@@ -115,12 +106,10 @@ else:
         pace = auto_pace
 
         # Score prediction
-        # Average each team's offensive efficiency against opponent's defensive efficiency
-        # Averaging instead of multiplying prevents inflation
-        score_a = ((t1['ADJOE'] / 100) + (t2['ADJDE'] / 100)) / 2 * pace
-        score_b = ((t2['ADJOE'] / 100) + (t1['ADJDE'] / 100)) / 2 * pace
+        score_a = ((t1['ADJOE'] / 100) + (t2['ADJDE'] / 100)) / 1.7 * pace
+        score_b = ((t2['ADJOE'] / 100) + (t1['ADJDE'] / 100)) / 1.7 * pace
 
-        # Win probability straight from BARTHAG
+        # Win probability from BARTHAG
         barthag_a = t1['BARTHAG']
         barthag_b = t2['BARTHAG']
         win_prob_a = barthag_a / (barthag_a + barthag_b) * 100
@@ -158,34 +147,26 @@ else:
     st.divider()
 
     if results:
-        total_bets = 0
-        total_wins = 0
+        total_games = 0
+        correct = 0
         table_rows = []
 
         for r in results:
-            actual_total = r["actual_score_a"] + r["actual_score_b"]
-            model_side = "OVER" if r["predicted_total"] > r["sportsbook_total"] else "UNDER"
-            if model_side == "OVER":
-                total_win = actual_total > r["sportsbook_total"]
-            else:
-                total_win = actual_total < r["sportsbook_total"]
-
-            total_bets += 1
-            if total_win:
-                total_wins += 1
+            correct_pick = r["predicted_winner"] == r["actual_winner"]
+            total_games += 1
+            if correct_pick:
+                correct += 1
 
             table_rows.append({
                 "Game": f"{r['team_a']} vs {r['team_b']}",
-                "Our Total": r["predicted_total"],
-                "Book": r["sportsbook_total"],
-                "Actual": actual_total,
-                "Side": model_side,
-                "Result": "✅ WIN" if total_win else "❌ LOSS"
+                "Predicted Winner": r["predicted_winner"],
+                "Actual Winner": r["actual_winner"],
+                "Result": "✅ WIN" if correct_pick else "❌ LOSS"
             })
 
         results_df = pd.DataFrame(table_rows)
 
-        st.markdown(f"**📊 Totals Record: {total_wins}-{total_bets - total_wins}**")
+        st.markdown(f"**🏆 Winner Record: {correct}-{total_games - correct}**")
 
         with st.expander("📋 View Results Table"):
             st.dataframe(results_df, use_container_width=True, hide_index=True)

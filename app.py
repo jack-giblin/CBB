@@ -104,14 +104,12 @@ else:
         # scaled by square root of pace ratio, grounded in probability theory
         simulations = 10000
         base_std = 10.5
-        pace_factor = (pace / national_avg_pace) ** 0.5
-        std_dev = base_std * pace_factor
 
         sim_a = np.random.normal(score_a, std_dev, simulations)
         sim_b = np.random.normal(score_b, std_dev, simulations)
 
         sim_total = sim_a + sim_b
-        median_total = round(np.median(sim_total))
+        median_total = round(np.median(sim_total) * 2) / 2
 
         avg_a = np.mean(sim_a)
         avg_b = np.mean(sim_b)

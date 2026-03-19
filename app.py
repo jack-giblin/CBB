@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
 st.title("🏀 CBB 2026 Score Predictor")
@@ -58,32 +59,59 @@ else:
         base_a = (t1['ADJOE'] / 100) * (t2['ADJDE'] / 100) * pace
         base_b = (t2['ADJOE'] / 100) * (t1['ADJDE'] / 100) * pace
 
-        # EFG adjustment
-        efg_factor_a = (t1['EFG_O'] / t2['EFG_D'])
-        efg_factor_b = (t2['EFG_O'] / t1['EFG_D'])
+        # Additive adjustments
+        efg_adj_a = (t1['EFG_O'] - t2['EFG_D']) * 0.3
+        efg_adj_b = (t2['EFG_O'] - t1['EFG_D']) * 0.3
 
-        # Turnover adjustment
-        tor_factor_a = 1 - ((t1['TOR'] - t2['TORD']) / 200)
-        tor_factor_b = 1 - ((t2['TOR'] - t1['TORD']) / 200)
+        tor_adj_a = (t2['TORD'] - t1['TOR']) * 0.2
+        tor_adj_b = (t1['TORD'] - t2['TOR']) * 0.2
 
-        # Rebounding adjustment
-        reb_factor_a = 1 + ((t1['ORB'] - t2['DRB']) / 200)
-        reb_factor_b = 1 + ((t2['ORB'] - t1['DRB']) / 200)
+        reb_adj_a = (t1['ORB'] - t2['DRB']) * 0.1
+        reb_adj_b = (t2['ORB'] - t1['DRB']) * 0.1
 
-        # Final scores
-        score_a = base_a * efg_factor_a * tor_factor_a * reb_factor_a
-        score_b = base_b * efg_factor_b * tor_factor_b * reb_factor_b
+        score_a = base_a + efg_adj_a + tor_adj_a + reb_adj_a
+        score_b = base_b + efg_adj_b + tor_adj_b + reb_adj_b
 
+        # --- Monte Carlo Simulation ---
+        simulations = 10000
+        std_dev = 7  # typical college basketball score variance
+
+        sim_a = np.random.normal(score_a, std_dev, simulations)
+        sim_b = np.random.normal(score_b, std_dev, simulations)
+
+        win_pct_a = np.mean(sim_a > sim_b) * 100
+        win_pct_b = 100 - win_pct_a
+
+        avg_total = np.mean(sim_a + sim_b)
+        over_pct = np.mean((sim_a + sim_b) > avg_total) * 100
+
+        # --- Display Results ---
         c1, c2 = st.columns(2)
         c1.metric(team_a, round(score_a))
         c2.metric(team_b, round(score_b))
 
-        total = round(score_a + score_b)
         winner = team_a if score_a > score_b else team_b
         st.success(f"🏆 **Prediction:** {winner} wins!")
-        st.info(f"📊 **Projected Total:** {total} points")
+        st.info(f"📊 **Projected Total:** {round(avg_total)} points")
 
+        st.divider()
+        st.markdown("#### 🎲 Monte Carlo Simulation (10,000 games)")
 
+        m1, m2 = st.columns(2)
+        m1.metric(f"{team_a} Win Probability", f"{win_pct_a:.1f}%")
+        m2.metric(f"{team_b} Win Probability", f"{win_pct_b:.1f}%")
 
+        st.divider()
+        st.markdown("#### 📈 Score Distribution")
+
+        sim_df = pd.DataFrame({
+            team_a: sim_a,
+            team_b: sim_b,
+            'Total': sim_a + sim_b
+        })
+
+        st.markdown(f"**{team_a} score range:** {int(np.percentile(sim_a, 10))} – {int(np.percentile(sim_a, 90))} (80% of simulations)")
+        st.markdown(f"**{team_b} score range:** {int(np.percentile(sim_b, 10))} – {int(np.percentile(sim_b, 90))} (80% of simulations)")
+        st.markdown(f"**Total range:** {int(np.percentile(sim_a + sim_b, 10))} – {int(np.percentile(sim_a + sim_b, 90))} (80% of simulations)")
 
 

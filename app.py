@@ -18,20 +18,12 @@ results = [
     #     "team_a": "TCU",
     #     "team_b": "Ohio State",
     #     "predicted_total": 150.5,
+    #     "sportsbook_total": 144.5,
     #     "predicted_winner": "Ohio State",
     #     "actual_score_a": 67,
     #     "actual_score_b": 71,
     #     "actual_winner": "Ohio State"
     # },
-    {
-        "team_a": "TCU",
-        "team_b": "Ohio State",
-        "predicted_total": 150.0,
-        "predicted_winner": "Ohio State",
-        "actual_score_a": 67,
-        "actual_score_b": 71,
-        "actual_winner": "Ohio State"
-    },
 ]
 
 @st.cache_data
@@ -170,16 +162,44 @@ else:
     if not results:
         st.caption("No results yet — check back after games are played.")
     else:
+        total_bets = 0
+        total_wins = 0
+        winner_bets = 0
+        winner_wins = 0
+
         for r in results:
             actual_total = r["actual_score_a"] + r["actual_score_b"]
-            total_diff = round(actual_total - r["predicted_total"], 1)
-            winner_correct = "✅" if r["predicted_winner"] == r["actual_winner"] else "❌"
-            total_direction = "over" if actual_total > r["predicted_total"] else "under"
 
-            st.markdown(f"""
-            **{r['team_a']} vs {r['team_b']}**  
-            Predicted: {r['predicted_winner']} wins | Total: {r['predicted_total']}  
-            Actual: {r['team_a']} {r['actual_score_a']} – {r['team_b']} {r['actual_score_b']} | Total: {actual_total} ({total_direction} by {abs(total_diff)})  
-            Winner: {winner_correct} | Total was {abs(total_diff)} points off
-            """)
+            # Total bet logic
+            model_side = "OVER" if r["predicted_total"] > r["sportsbook_total"] else "UNDER"
+            if model_side == "OVER":
+                total_result = "✅ WIN" if actual_total > r["sportsbook_total"] else "❌ LOSS"
+                total_win = actual_total > r["sportsbook_total"]
+            else:
+                total_result = "✅ WIN" if actual_total < r["sportsbook_total"] else "❌ LOSS"
+                total_win = actual_total < r["sportsbook_total"]
+
+            # Winner bet logic
+            winner_correct = r["predicted_winner"] == r["actual_winner"]
+            winner_result = "✅ WIN" if winner_correct else "❌ LOSS"
+
+            total_bets += 1
+            winner_bets += 1
+            if total_win:
+                total_wins += 1
+            if winner_correct:
+                winner_wins += 1
+
+            st.markdown(f"**{r['team_a']} vs {r['team_b']}**")
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Our Total", r["predicted_total"])
+            c2.metric("Book Total", r["sportsbook_total"])
+            c3.metric("Actual Total", actual_total)
+
+            st.markdown(f"Model was on the **{model_side}** → {total_result} (actual {actual_total} vs book {r['sportsbook_total']})")
+            st.markdown(f"Predicted winner: **{r['predicted_winner']}** → {winner_result} (actual winner: {r['actual_winner']})")
             st.divider()
+
+        # Running record
+        st.markdown(f"**📊 Record: Totals {total_wins}-{total_bets - total_wins} | Winners {winner_wins}-{winner_bets - winner_wins}**")

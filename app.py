@@ -16,6 +16,8 @@ def load_data():
 
 df, teams = load_data()
 
+st.write(df[['TEAM','ADJOE','ADJDE','EFG_O','EFG_D','TOR','TORD','ORB','DRB']].head(3))
+
 if not teams:
     st.error("Error: 'cbb26.csv' not found in the repository.")
 else:

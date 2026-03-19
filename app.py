@@ -55,9 +55,10 @@ else:
 
         pace = pace_override
 
-        # Base efficiency score
-        base_a = (t1['ADJOE'] / 100) * (t2['ADJDE'] / 100) * pace
-        base_b = (t2['ADJOE'] / 100) * (t1['ADJDE'] / 100) * pace
+tournament_factor = 0.92
+
+base_a = (t1['ADJOE'] / 100) * (t2['ADJDE'] / 100) * pace * tournament_factor
+base_b = (t2['ADJOE'] / 100) * (t1['ADJDE'] / 100) * pace * tournament_factor
 
         # EFG adjustment (stored as percentage e.g. 56.8)
         efg_adj_a = (t1['EFG_O'] - t2['EFG_D']) * 0.15

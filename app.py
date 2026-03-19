@@ -28,20 +28,20 @@ else:
     st.divider()
 
     st.markdown("#### ⏱️ Game Pace Adjustment")
-    st.caption("Pace = estimated possessions per game. Tournament games trend slower than regular season.")
+    st.caption("March Madness historically averages 68–69 possessions per game — slower and more deliberate than regular season.")
 
     pace_override = st.slider(
         "Possessions per game",
         min_value=64,
         max_value=79,
-        value=70,
+        value=68,
         step=1
     )
 
     if pace_override <= 66:
         st.caption("🐢 Slow pace — think Iowa (64.7). Expect a grind, defensive battle likely.")
     elif pace_override <= 70:
-        st.caption("🏀 Average pace — most tournament teams fall around 70 possessions per game.")
+        st.caption("🏀 Tournament average — March Madness historically averages 68–69 possessions per game.")
     elif pace_override <= 74:
         st.caption("⚡ Up-tempo — both teams like to push the ball.")
     else:
@@ -55,12 +55,16 @@ else:
 
         pace = pace_override
 
+        # Tournament calibration factors derived from historical data:
+        # - NCAA Tournament avg combined score ~141 vs model output ~149 = 5.4% overestimate
+        # - Tournament teams score ~4 points fewer per game than regular season efficiency predicts
+        tournament_factor = 0.946
+
         # Base efficiency score
-        tournament_factor = 0.92
         base_a = (t1['ADJOE'] / 100) * (t2['ADJDE'] / 100) * pace * tournament_factor
         base_b = (t2['ADJOE'] / 100) * (t1['ADJDE'] / 100) * pace * tournament_factor
 
-        # EFG adjustment (stored as percentage e.g. 56.8)
+        # EFG adjustment (shooting efficiency, stored as percentage e.g. 56.8)
         efg_adj_a = (t1['EFG_O'] - t2['EFG_D']) * 0.15
         efg_adj_b = (t2['EFG_O'] - t1['EFG_D']) * 0.15
 
@@ -90,9 +94,9 @@ else:
         avg_b = np.mean(sim_b)
         avg_total = np.mean(sim_a + sim_b)
 
-        # Main prediction
         winner = team_a if avg_a > avg_b else team_b
 
+        # Main prediction
         c1, c2 = st.columns(2)
         c1.metric(team_a, round(avg_a))
         c2.metric(team_b, round(avg_b))
@@ -102,6 +106,7 @@ else:
 
         st.divider()
         st.markdown("#### 🎲 Monte Carlo Simulation (10,000 games)")
+        st.caption("Simulates 10,000 versions of this game using statistical variance to estimate outcomes.")
 
         m1, m2 = st.columns(2)
         m1.metric(f"{team_a} Win Probability", f"{win_pct_a:.1f}%")
@@ -109,8 +114,8 @@ else:
 
         st.divider()
         st.markdown("#### 📈 Score Distribution (80% confidence range)")
+        st.caption("The range you'd expect the score to land in 8 out of 10 simulated games.")
 
         st.markdown(f"**{team_a}:** {int(np.percentile(sim_a, 10))} – {int(np.percentile(sim_a, 90))} points")
         st.markdown(f"**{team_b}:** {int(np.percentile(sim_b, 10))} – {int(np.percentile(sim_b, 90))} points")
         st.markdown(f"**Total:** {int(np.percentile(sim_a + sim_b, 10))} – {int(np.percentile(sim_a + sim_b, 90))} points")
-

@@ -3,13 +3,13 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
-st.title("🏀 CBB 2026 March Madness Predictor")
+st.title("🏀 CBB 2026 Score Predictor")
 
-st.caption(""" 🚨
-    **This program forecasts games using KenPom metrics through statistical analysis. 
+st.caption("""
+    This program forecasts games using KenPom statistical metrics through statistical analysis. 
     It accounts for team efficiency on both sides of the ball, pace of play, shooting, turnovers, 
     rebounding, and free throws — but does not factor in injuries, sportsbook shading, 
-    coaching adjustments, or the chaos that is March Madness.**
+    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨
 """)
 
 @st.cache_data
@@ -42,12 +42,16 @@ else:
     avg_tor = df['TOR'].mean()
     avg_orb = df['ORB'].mean()
     avg_ftr = df['FTR'].mean()
+    national_avg_pace = df['ADJ_T'].mean()
 
     st.divider()
     st.markdown("#### ⏱️ Adjusted Tempo")
     st.caption("""
         **What is Adjusted Tempo?** KenPom's Adjusted Tempo (ADJ_T) estimates how many possessions 
-        per 40 minutes a team would play against an average Division I opponent.
+        per 40 minutes a team would play against an average Division I opponent. Unlike raw possessions 
+        per game, it removes the influence of opponents — so a slow team that played an unusually fast 
+        schedule won't look artificially up-tempo. This gives us a fairer, more accurate picture of 
+        each team's true pace of play.
     """)
 
     p1, p2, p3 = st.columns(3)
@@ -106,8 +110,12 @@ else:
         score_b = base_b + efg_adj_b + tor_adj_b + reb_adj_b + ftr_adj_b
 
         # Monte Carlo simulation (10,000 games)
+        # std_dev is dynamic — faster pace = more possessions = more variance
+        # scaled by square root of pace ratio, grounded in probability theory
         simulations = 10000
-        std_dev = 7
+        base_std = 7
+        pace_factor = (pace / national_avg_pace) ** 0.5
+        std_dev = base_std * pace_factor
 
         sim_a = np.random.normal(score_a, std_dev, simulations)
         sim_b = np.random.normal(score_b, std_dev, simulations)
@@ -131,7 +139,11 @@ else:
 
         st.divider()
         st.markdown("#### 🎲 Monte Carlo Simulation (10,000 games)")
-        st.caption("Simulates 10,000 versions of this game using statistical variance to estimate outcomes.")
+        st.caption(f"""
+            Simulates 10,000 versions of this game using pace-adjusted statistical variance. 
+            Projected tempo of {auto_pace} produces a standard deviation of {round(std_dev, 2)} — 
+            faster games have more possessions and therefore more room for variance.
+        """)
 
         m1, m2 = st.columns(2)
         m1.metric(f"{team_a} Win Probability", f"{win_pct_a:.1f}%")

@@ -117,15 +117,11 @@ else:
 
         pace = auto_pace
 
-        # Score prediction — let KenPom do the work
-        # ADJOE = points scored per 100 possessions vs average defense
-        # Just scale directly by pace — no opponent adjustment needed
+        # Score prediction using ADJOE directly
         score_a = (t1['ADJOE'] / 100) * pace
         score_b = (t2['ADJOE'] / 100) * pace
 
-        # Win probability straight from BARTHAG
-        # BARTHAG = probability of beating an average D1 team
-        # Relative BARTHAG gives us head to head win probability
+        # Win probability from BARTHAG
         barthag_a = t1['BARTHAG']
         barthag_b = t2['BARTHAG']
         win_prob_a = barthag_a / (barthag_a + barthag_b) * 100
@@ -161,36 +157,39 @@ else:
 
     # --- Real Results Section ---
     st.divider()
-    st.markdown("#### 📋 Real Results vs Predictions")
 
-    if not results:
-        st.caption("No results yet — check back after games are played.")
-    else:
+    if results:
         total_bets = 0
         total_wins = 0
+        table_rows = []
 
         for r in results:
             actual_total = r["actual_score_a"] + r["actual_score_b"]
-
             model_side = "OVER" if r["predicted_total"] > r["sportsbook_total"] else "UNDER"
             if model_side == "OVER":
                 total_win = actual_total > r["sportsbook_total"]
             else:
                 total_win = actual_total < r["sportsbook_total"]
 
-            total_result = "✅ WIN" if total_win else "❌ LOSS"
             total_bets += 1
             if total_win:
                 total_wins += 1
 
-            st.markdown(f"**{r['team_a']} vs {r['team_b']}**")
+            table_rows.append({
+                "Game": f"{r['team_a']} vs {r['team_b']}",
+                "Our Total": r["predicted_total"],
+                "Book": r["sportsbook_total"],
+                "Actual": actual_total,
+                "Side": model_side,
+                "Result": "✅ WIN" if total_win else "❌ LOSS"
+            })
 
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Our Total", r["predicted_total"])
-            c2.metric("Book Total", r["sportsbook_total"])
-            c3.metric("Actual Total", actual_total)
-
-            st.markdown(f"Model was on the **{model_side}** → {total_result}")
-            st.divider()
+        results_df = pd.DataFrame(table_rows)
 
         st.markdown(f"**📊 Totals Record: {total_wins}-{total_bets - total_wins}**")
+
+        with st.expander("📋 View Results Table"):
+            st.dataframe(results_df, use_container_width=True, hide_index=True)
+    else:
+        with st.expander("📋 Real Results vs Predictions"):
+            st.caption("No results yet — check back after games are played.")

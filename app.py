@@ -17,7 +17,7 @@ results = [
     {
         "team_a": "TCU",
         "team_b": "Ohio State",
-        "predicted_total": 138.5,
+        "predicted_total": 150.5,
         "sportsbook_total": 146.5,
         "actual_score_a": 67,
         "actual_score_b": 63,
@@ -25,7 +25,7 @@ results = [
     {
         "team_a": "High Point",
         "team_b": "Wisconsin",
-        "predicted_total": 1.0,
+        "predicted_total": 164.0,
         "sportsbook_total": 162.5,
         "actual_score_a": 76,
         "actual_score_b": 89,
@@ -88,15 +88,15 @@ else:
     t2 = df[df['TEAM'] == team_b].iloc[0]
     auto_pace = round((t1['ADJ_T'] + t2['ADJ_T']) / 2, 1)
 
-    # Filter to tournament teams only to anchor averages
-    # This prevents inflating scores by comparing against weak D1 teams
+    # Anchor averages to top 100 teams
+    # Avoids inflating vs weak D1 teams but doesn't over-deflate vs tournament field only
     top100_df = df.nsmallest(100, 'RK')
     avg_efficiency = top100_df['ADJOE'].mean()
     avg_efg = top100_df['EFG_O'].mean()
     avg_tor = top100_df['TOR'].mean()
     avg_orb = top100_df['ORB'].mean()
     avg_ftr = top100_df['FTR'].mean()
-    national_avg_pace = top100_df['ADJ_T'].mean())
+    national_avg_pace = top100_df['ADJ_T'].mean()
 
     st.divider()
     st.markdown("#### ⏱️ Adjusted Tempo")
@@ -128,7 +128,7 @@ else:
 
         pace = auto_pace
 
-        # Base efficiency score anchored to tournament field average
+        # Base efficiency score anchored to top 100 teams
         base_a = (t1['ADJOE'] * t2['ADJDE'] / avg_efficiency) * (pace / 100)
         base_b = (t2['ADJOE'] * t1['ADJDE'] / avg_efficiency) * (pace / 100)
 

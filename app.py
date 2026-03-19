@@ -23,6 +23,15 @@ results = [
     #     "actual_score_b": 71,
     #     "actual_winner": "Ohio State"
     # },
+    {
+        "team_a": "TCU",
+        "team_b": "Ohio State",
+        "predicted_total": 150.0,
+        "predicted_winner": "Ohio State",
+        "actual_score_a": 67,
+        "actual_score_b": 71,
+        "actual_winner": "Ohio State"
+    },
 ]
 
 @st.cache_data

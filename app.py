@@ -6,10 +6,9 @@ st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
 st.title("🏀 CBB 2026 Score Predictor")
 
 st.caption("""
-    This program forecasts games using KenPom statistical metrics through statistical analysis. 
-    It accounts for team efficiency on both sides of the ball, pace of play, shooting, turnovers, 
-    rebounding, and free throws — but does not factor in injuries, sportsbook shading, 
-    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨
+    This program forecasts games using KenPom statistical metrics. 
+    It does not factor in injuries, sportsbook shading, coaching adjustments, 
+    or the chaos that makes March Madness unpredictable. 🚨
 """)
 
 # --- Add real results here after each game ---
@@ -88,16 +87,6 @@ else:
     t2 = df[df['TEAM'] == team_b].iloc[0]
     auto_pace = round((t1['ADJ_T'] + t2['ADJ_T']) / 2, 1)
 
-    # Anchor averages to top 100 teams
-    # Avoids inflating vs weak D1 teams but doesn't over-deflate vs tournament field only
-    top100_df = df.nsmallest(100, 'RK')
-    avg_efficiency = top100_df['ADJOE'].mean()
-    avg_efg = top100_df['EFG_O'].mean()
-    avg_tor = top100_df['TOR'].mean()
-    avg_orb = top100_df['ORB'].mean()
-    avg_ftr = top100_df['FTR'].mean()
-    national_avg_pace = top100_df['ADJ_T'].mean()
-
     st.divider()
     st.markdown("#### ⏱️ Adjusted Tempo")
     st.caption("""
@@ -128,64 +117,38 @@ else:
 
         pace = auto_pace
 
-        # Base efficiency score anchored to top 100 teams
-        base_a = (t1['ADJOE'] * t2['ADJDE'] / avg_efficiency) * (pace / 100)
-        base_b = (t2['ADJOE'] * t1['ADJDE'] / avg_efficiency) * (pace / 100)
+        # Score prediction — let KenPom do the work
+        # ADJOE = points scored per 100 possessions vs average defense
+        # Just scale directly by pace — no opponent adjustment needed
+        score_a = (t1['ADJOE'] / 100) * pace
+        score_b = (t2['ADJOE'] / 100) * pace
 
-        # EFG adjustment
-        efg_adj_a = ((t1['EFG_O'] - avg_efg) - (t2['EFG_D'] - avg_efg)) * 0.15
-        efg_adj_b = ((t2['EFG_O'] - avg_efg) - (t1['EFG_D'] - avg_efg)) * 0.15
+        # Win probability straight from BARTHAG
+        # BARTHAG = probability of beating an average D1 team
+        # Relative BARTHAG gives us head to head win probability
+        barthag_a = t1['BARTHAG']
+        barthag_b = t2['BARTHAG']
+        win_prob_a = barthag_a / (barthag_a + barthag_b) * 100
+        win_prob_b = 100 - win_prob_a
 
-        # Turnover adjustment
-        pace_ratio = pace / national_avg_pace
-        tor_adj_a = ((avg_tor - t1['TOR']) + (t2['TORD'] - avg_tor)) * 0.1 * pace_ratio
-        tor_adj_b = ((avg_tor - t2['TOR']) + (t1['TORD'] - avg_tor)) * 0.1 * pace_ratio
-
-        # Rebounding adjustment
-        reb_adj_a = ((t1['ORB'] - avg_orb) - (t2['DRB'] - avg_orb)) * 0.05 * pace_ratio
-        reb_adj_b = ((t2['ORB'] - avg_orb) - (t1['DRB'] - avg_orb)) * 0.05 * pace_ratio
-
-        # Free throw adjustment
-        ftr_adj_a = ((t1['FTR'] - avg_ftr) - (t2['FTRD'] - avg_ftr)) * 0.05
-        ftr_adj_b = ((t2['FTR'] - avg_ftr) - (t1['FTRD'] - avg_ftr)) * 0.05
-
-        # Final scores
-        score_a = base_a + efg_adj_a + tor_adj_a + reb_adj_a + ftr_adj_a
-        score_b = base_b + efg_adj_b + tor_adj_b + reb_adj_b + ftr_adj_b
+        winner = team_a if win_prob_a > win_prob_b else team_b
 
         # Monte Carlo simulation (10,000 games)
         simulations = 10000
-        base_std = 7
-        pace_factor = (pace / national_avg_pace) ** 0.5
-        std_dev = base_std * pace_factor
+        std_dev = 5
 
         sim_a = np.random.normal(score_a, std_dev, simulations)
         sim_b = np.random.normal(score_b, std_dev, simulations)
-
         sim_total = sim_a + sim_b
         median_total = round(np.mean(sim_total) * 2) / 2
 
-        avg_a = np.mean(sim_a)
-        avg_b = np.mean(sim_b)
-
-        winner = team_a if avg_a > avg_b else team_b
-
         # Main prediction
         c1, c2 = st.columns(2)
-        c1.metric(team_a, round(avg_a))
-        c2.metric(team_b, round(avg_b))
+        c1.metric(team_a, round(score_a))
+        c2.metric(team_b, round(score_b))
 
         st.success(f"🏆 **Prediction:** {winner} wins!")
-
-        st.divider()
-        st.markdown("#### 🎲 Monte Carlo Simulation (10,000 games)")
-        st.caption(f"""
-            Simulates 10,000 versions of this game using pace-adjusted statistical variance. 
-            Projected tempo of {auto_pace} produces a standard deviation of {round(std_dev, 2)} — 
-            faster games have more possessions and therefore more room for variance.
-        """)
-
-        st.metric("Simulated Total", median_total)
+        st.info(f"📊 **Win Probability:** {team_a} {win_prob_a:.1f}% | {team_b} {win_prob_b:.1f}%")
 
         st.divider()
         st.markdown("#### 📈 Score Distribution (80% confidence range)")
@@ -194,6 +157,7 @@ else:
         st.markdown(f"**{team_a}:** {int(np.percentile(sim_a, 10))} – {int(np.percentile(sim_a, 90))} points")
         st.markdown(f"**{team_b}:** {int(np.percentile(sim_b, 10))} – {int(np.percentile(sim_b, 90))} points")
         st.markdown(f"**Total:** {int(np.percentile(sim_total, 10))} – {int(np.percentile(sim_total, 90))} points")
+        st.metric("Simulated Total", median_total)
 
     # --- Real Results Section ---
     st.divider()

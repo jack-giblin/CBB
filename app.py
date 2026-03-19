@@ -114,17 +114,16 @@ else:
     st.divider()
 
     if st.button("Predict Score", use_container_width=True):
-    if st.button("Predict Score", use_container_width=True):
-        st.write(t1[['ADJOE', 'ADJDE', 'ADJ_T']])
-        st.write(t2[['ADJOE', 'ADJDE', 'ADJ_T']])
 
         pace = auto_pace
 
-        # Score prediction using ADJOE directly
-        score_a = (t1['ADJOE'] / 100) * (t2['ADJDE'] / 100) * pace
-        score_b = (t2['ADJOE'] / 100) * (t1['ADJDE'] / 100) * pace
+        # Score prediction
+        # Average each team's offensive efficiency against opponent's defensive efficiency
+        # Averaging instead of multiplying prevents inflation
+        score_a = ((t1['ADJOE'] / 100) + (t2['ADJDE'] / 100)) / 2 * pace
+        score_b = ((t2['ADJOE'] / 100) + (t1['ADJDE'] / 100)) / 2 * pace
 
-        # Win probability from BARTHAG
+        # Win probability straight from BARTHAG
         barthag_a = t1['BARTHAG']
         barthag_b = t2['BARTHAG']
         win_prob_a = barthag_a / (barthag_a + barthag_b) * 100

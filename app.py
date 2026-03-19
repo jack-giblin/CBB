@@ -72,7 +72,7 @@ else:
         ** This program is designed to forecast games using KenPom statistical metrics purely through statistical
         analysis. It accounts for a variety of factors including teams efficiency on both sides of the ball, pace of play, shooting, etc -
         but it does not factor in injuries, sportsbook shading, coaching adjustments, or the chaos that is March Madness **
-    """)I 
+    """)
 
         # Base efficiency score
         # Dividing by avg_efficiency removes double-counting of average

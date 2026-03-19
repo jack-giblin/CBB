@@ -197,9 +197,6 @@ else:
                 total_result = "✅ WIN" if actual_total < r["sportsbook_total"] else "❌ LOSS"
                 total_win = actual_total < r["sportsbook_total"]
 
-            # Winner bet logic
-            winner_correct = r["predicted_winner"] == r["actual_winner"]
-            winner_result = "✅ WIN" if winner_correct else "❌ LOSS"
 
             total_bets += 1
             winner_bets += 1

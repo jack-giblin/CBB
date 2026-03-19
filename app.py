@@ -5,6 +5,13 @@ import numpy as np
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
 st.title("🏀 CBB 2026 Score Predictor")
 
+st.caption("""
+    This program forecasts games using KenPom statistical metrics through statistical analysis. 
+    It accounts for team efficiency on both sides of the ball, pace of play, shooting, turnovers, 
+    rebounding, and free throws — but does not factor in injuries, sportsbook shading, 
+    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨
+""")
+
 @st.cache_data
 def load_data():
     try:
@@ -65,14 +72,6 @@ else:
     if st.button("Predict Score", use_container_width=True):
 
         pace = auto_pace
-
-    st.divider()
-    st.markdown("#### 🚨 Quick Notes")
-    st.caption("""
-        ** This program is designed to forecast games using KenPom statistical metrics purely through statistical
-        analysis. It accounts for a variety of factors including teams efficiency on both sides of the ball, pace of play, shooting, etc -
-        but it does not factor in injuries, sportsbook shading, coaching adjustments, or the chaos that is March Madness **
-    """)
 
         # Base efficiency score
         # Dividing by avg_efficiency removes double-counting of average

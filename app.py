@@ -3,12 +3,12 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
-st.title("🏀 CBB 2026 Score Predictor")
+st.title("🏀 CBB 2026 March Madness Predictor")
 
 st.caption("""
-    This program forecasts games using KenPom statistical metrics. 
+    🚨 This program forecasts games using KenPom statistical metrics. 
     It does not factor in injuries, sportsbook shading, coaching adjustments, 
-    or the chaos that makes March Madness unpredictable. 🚨
+    or the chaos that makes March Madness unpredictable.
 """)
 
 # --- Add real results here after each game ---
@@ -16,47 +16,47 @@ results = [
     {
         "team_a": "TCU",
         "team_b": "Ohio State",
-        "predicted_total": 150.5,
+        "predicted_total": 147.5,
         "sportsbook_total": 146.5,
-        "actual_score_a": 67,
-        "actual_score_b": 63,
+        "actual_score_a": 66,
+        "actual_score_b": 64,
     },
     {
         "team_a": "High Point",
         "team_b": "Wisconsin",
-        "predicted_total": 164.0,
-        "sportsbook_total": 162.5,
-        "actual_score_a": 76,
-        "actual_score_b": 89,
+        "predicted_total": 156.5,
+        "sportsbook_total": 161.5,
+        "actual_score_a": 83,
+        "actual_score_b": 82,
     },
     {
         "team_a": "South Florida",
         "team_b": "Louisville",
-        "predicted_total": 158.5,
-        "sportsbook_total": 163.5,
-        "actual_score_a": 74,
-        "actual_score_b": 88,
+        "predicted_total": 155.5,
+        "sportsbook_total": 160.5,
+        "actual_score_a": 79,
+        "actual_score_b": 83,
     },
     {
         "team_a": "Troy",
         "team_b": "Nebraska",
-        "predicted_total": 142.5,
-        "sportsbook_total": 138.5,
-        "actual_score_a": 55,
-        "actual_score_b": 68,
+        "predicted_total": 142.0,
+        "sportsbook_total": 139.5,
+        "actual_score_a": 47,
+        "actual_score_b": 76,
     },
     {
         "team_a": "Duke",
         "team_b": "Siena",
-        "predicted_total": 145.5,
+        "predicted_total": 142.0,
         "sportsbook_total": 137.5,
-        "actual_score_a": 78,
-        "actual_score_b": 58,
+        "actual_score_a": 71,
+        "actual_score_b": 65,
     },
     {
         "team_a": "McNeese",
         "team_b": "Vanderbilt",
-        "predicted_total": 153.0,
+        "predicted_total": 149.5,
         "sportsbook_total": 148.5,
         "actual_score_a": 68,
         "actual_score_b": 78,
@@ -91,10 +91,7 @@ else:
     st.markdown("#### ⏱️ Adjusted Tempo")
     st.caption("""
         **What is Adjusted Tempo?** KenPom's Adjusted Tempo (ADJ_T) estimates how many possessions 
-        per 40 minutes a team would play against an average Division I opponent. Unlike raw possessions 
-        per game, it removes the influence of opponents — so a slow team that played an unusually fast 
-        schedule won't look artificially up-tempo. This gives us a fairer, more accurate picture of 
-        each team's true pace of play.
+        per 40 minutes a team would play against an average Division I opponent. 
     """)
 
     p1, p2, p3 = st.columns(3)

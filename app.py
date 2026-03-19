@@ -28,7 +28,7 @@ results = [
         "predicted_total": 150.5,
         "sportsbook_total": 146.5,
         "actual_score_a": 66,
-        "actual_score_b": 74,
+        "actual_score_b": 64,
      },
      {
         "team_a": "High Point",
@@ -45,6 +45,14 @@ results = [
         "sportsbook_total": 163.5,
         "actual_score_a": 79,
         "actual_score_b": 83,
+     },
+     {
+        "team_a": "Troy",
+        "team_b": "Nebraska",
+        "predicted_total": 142.5,
+        "sportsbook_total": 138.5,
+        "actual_score_a": 47,
+        "actual_score_b": 76,
      },
 ]
 

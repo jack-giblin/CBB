@@ -137,7 +137,7 @@ else:
         st.success(f"🏆 **Prediction:** {winner} wins!")
         st.info(f"📊 **Projected Total:** {round(avg_total)} points")
 
-       st.divider()
+        st.divider()
         st.markdown("#### 🎲 Monte Carlo Simulation (10,000 games)")
         st.caption(f"""
             Simulates 10,000 versions of this game using pace-adjusted statistical variance. 

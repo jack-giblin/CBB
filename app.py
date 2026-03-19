@@ -51,7 +51,7 @@ else:
     p2.metric(f"{team_b} ADJ_T", f"{t2['ADJ_T']}")
     p3.metric("Projected Game Tempo", f"{auto_pace}")
 
-        st.divider()
+    st.divider()
     st.markdown("#### 🚨 Quick Notes")
     st.caption("""
         **It's worth noting. Our predicted outcomes are based on pure statistical factors. WE HAVE NOT taken in consideration

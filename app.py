@@ -25,33 +25,47 @@ else:
     with col2:
         team_b = st.selectbox("Home Team", teams, index=1, key='b')
 
+    # Auto-calculate pace from team data
+    t1 = df[df['TEAM'] == team_a].iloc[0]
+    t2 = df[df['TEAM'] == team_b].iloc[0]
+    auto_pace = round((t1['ADJ_T'] + t2['ADJ_T']) / 2, 1)
+
     st.divider()
+    st.markdown("#### ⏱️ Game Pace")
 
-    st.markdown("#### ⏱️ Game Pace Adjustment")
-    st.caption("March Madness historically averages 68–69 possessions per game — slower and more deliberate than regular season.")
+    # Show the breakdown so user understands the logic
+    p1, p2, p3 = st.columns(3)
+    p1.metric(f"{team_a} Avg Pace", f"{t1['ADJ_T']} poss/g")
+    p2.metric(f"{team_b} Avg Pace", f"{t2['ADJ_T']} poss/g")
+    p3.metric("Projected Game Pace", f"{auto_pace} poss/g")
 
-    pace_override = st.slider(
-        "Possessions per game",
-        min_value=64,
-        max_value=79,
-        value=68,
-        step=1
-    )
-
-    if pace_override <= 66:
+    if auto_pace <= 66:
         st.caption("🐢 Slow pace — think Iowa (64.7). Expect a grind, defensive battle likely.")
-    elif pace_override <= 70:
+    elif auto_pace <= 70:
         st.caption("🏀 Tournament average — March Madness historically averages 68–69 possessions per game.")
-    elif pace_override <= 74:
+    elif auto_pace <= 74:
         st.caption("⚡ Up-tempo — both teams like to push the ball.")
     else:
         st.caption("🚀 High pace — think Alabama (78.3). Wide open game, points expected.")
 
     st.divider()
+    st.markdown("#### 🎚️ Manual Pace Override")
+    st.caption("Auto-calculated from each team's season average. Adjust below if you expect a different tempo.")
+
+    pace_override = st.slider(
+        "Possessions per game",
+        min_value=64,
+        max_value=79,
+        value=int(auto_pace),
+        step=1
+    )
+
+    if pace_override != int(auto_pace):
+        st.caption(f"⚠️ Manually adjusted from {auto_pace} to {pace_override}")
+
+    st.divider()
 
     if st.button("Predict Score", use_container_width=True):
-        t1 = df[df['TEAM'] == team_a].iloc[0]
-        t2 = df[df['TEAM'] == team_b].iloc[0]
 
         pace = pace_override
 
@@ -64,7 +78,7 @@ else:
         base_a = (t1['ADJOE'] / 100) * (t2['ADJDE'] / 100) * pace * tournament_factor
         base_b = (t2['ADJOE'] / 100) * (t1['ADJDE'] / 100) * pace * tournament_factor
 
-        # EFG adjustment (shooting efficiency, stored as percentage e.g. 56.8)
+        # EFG adjustment
         efg_adj_a = (t1['EFG_O'] - t2['EFG_D']) * 0.15
         efg_adj_b = (t2['EFG_O'] - t1['EFG_D']) * 0.15
 

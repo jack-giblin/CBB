@@ -14,54 +14,46 @@ st.caption("""
 
 # --- Add real results here after each game ---
 results = [
-  # {
-    #     "team_a": "TCU",
-    #     "team_b": "Ohio State",
-    #     "predicted_total": 150.5,
-    #     "sportsbook_total": 144.5,
-    #     "actual_score_a": 67,
-    #     "actual_score_b": 71,
-    # },
     {
         "team_a": "TCU",
         "team_b": "Ohio State",
         "predicted_total": 150.5,
         "sportsbook_total": 146.5,
-        "actual_score_a": 66,
-        "actual_score_b": 64,
-     },
-     {
+        "actual_score_a": 67,
+        "actual_score_b": 63,
+    },
+    {
         "team_a": "High Point",
         "team_b": "Wisconsin",
         "predicted_total": 164.0,
         "sportsbook_total": 162.5,
-        "actual_score_a": 83,
-        "actual_score_b": 82,
-     },
+        "actual_score_a": 76,
+        "actual_score_b": 89,
+    },
     {
         "team_a": "South Florida",
         "team_b": "Louisville",
         "predicted_total": 158.5,
         "sportsbook_total": 163.5,
-        "actual_score_a": 79,
-        "actual_score_b": 83,
-     },
-     {
+        "actual_score_a": 74,
+        "actual_score_b": 88,
+    },
+    {
         "team_a": "Troy",
         "team_b": "Nebraska",
         "predicted_total": 142.5,
         "sportsbook_total": 138.5,
-        "actual_score_a": 47,
-        "actual_score_b": 76,
-     },
-     {
+        "actual_score_a": 55,
+        "actual_score_b": 68,
+    },
+    {
         "team_a": "Duke",
         "team_b": "Siena",
         "predicted_total": 145.5,
         "sportsbook_total": 137.5,
-        "actual_score_a": 65,
-        "actual_score_b": 71,
-     },
+        "actual_score_a": 78,
+        "actual_score_b": 58,
+    },
     {
         "team_a": "McNeese",
         "team_b": "Vanderbilt",
@@ -69,7 +61,7 @@ results = [
         "sportsbook_total": 148.5,
         "actual_score_a": 68,
         "actual_score_b": 78,
-     },
+    },
 ]
 
 @st.cache_data
@@ -96,13 +88,15 @@ else:
     t2 = df[df['TEAM'] == team_b].iloc[0]
     auto_pace = round((t1['ADJ_T'] + t2['ADJ_T']) / 2, 1)
 
-    # League averages used to anchor adjustments
-    avg_efficiency = df['ADJOE'].mean()
-    avg_efg = df['EFG_O'].mean()
-    avg_tor = df['TOR'].mean()
-    avg_orb = df['ORB'].mean()
-    avg_ftr = df['FTR'].mean()
-    national_avg_pace = df['ADJ_T'].mean()
+    # Filter to tournament teams only to anchor averages
+    # This prevents inflating scores by comparing against weak D1 teams
+    tournament_df = df[df['SEED'].notna()]
+    avg_efficiency = tournament_df['ADJOE'].mean()
+    avg_efg = tournament_df['EFG_O'].mean()
+    avg_tor = tournament_df['TOR'].mean()
+    avg_orb = tournament_df['ORB'].mean()
+    avg_ftr = tournament_df['FTR'].mean()
+    national_avg_pace = tournament_df['ADJ_T'].mean()
 
     st.divider()
     st.markdown("#### ⏱️ Adjusted Tempo")
@@ -134,7 +128,7 @@ else:
 
         pace = auto_pace
 
-        # Base efficiency score
+        # Base efficiency score anchored to tournament field average
         base_a = (t1['ADJOE'] * t2['ADJDE'] / avg_efficiency) * (pace / 100)
         base_b = (t2['ADJOE'] * t1['ADJDE'] / avg_efficiency) * (pace / 100)
 
@@ -143,7 +137,7 @@ else:
         efg_adj_b = ((t2['EFG_O'] - avg_efg) - (t1['EFG_D'] - avg_efg)) * 0.15
 
         # Turnover adjustment
-        pace_ratio = pace / 70
+        pace_ratio = pace / national_avg_pace
         tor_adj_a = ((avg_tor - t1['TOR']) + (t2['TORD'] - avg_tor)) * 0.1 * pace_ratio
         tor_adj_b = ((avg_tor - t2['TOR']) + (t1['TORD'] - avg_tor)) * 0.1 * pace_ratio
 

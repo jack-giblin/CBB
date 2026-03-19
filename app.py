@@ -58,9 +58,9 @@ results = [
         "team_a": "Duke",
         "team_b": "Siena",
         "predicted_total": 145.5,
-        "sportsbook_total": 135.5,
-        "actual_score_a": 47,
-        "actual_score_b": 76,
+        "sportsbook_total": 137.5,
+        "actual_score_a": 65,
+        "actual_score_b": 71,
      },
 ]
 

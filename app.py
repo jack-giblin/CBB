@@ -34,6 +34,16 @@ results = [
         "actual_score_b": 71,
         "actual_winner": "Ohio State"
     },
+    {
+        "team_a": "Troy",
+        "team_b": "Nebraska",
+        "predicted_total": 142.0,
+        "sportsbook_total": 137.5,
+        "predicted_winner": "Nebraska",
+        "actual_score_a": 67,
+        "actual_score_b": 71,
+        "actual_winner": "Nebraska"
+    },
 ]
 
 @st.cache_data

@@ -137,7 +137,7 @@ else:
         st.success(f"🏆 **Prediction:** {winner} wins!")
         st.info(f"📊 **Projected Total:** {round(avg_total)} points")
 
-        st.divider()
+       st.divider()
         st.markdown("#### 🎲 Monte Carlo Simulation (10,000 games)")
         st.caption(f"""
             Simulates 10,000 versions of this game using pace-adjusted statistical variance. 
@@ -145,9 +145,28 @@ else:
             faster games have more possessions and therefore more room for variance.
         """)
 
-        m1, m2 = st.columns(2)
-        m1.metric(f"{team_a} Win Probability", f"{win_pct_a:.1f}%")
-        m2.metric(f"{team_b} Win Probability", f"{win_pct_b:.1f}%")
+        sim_total = sim_a + sim_b
+        median_total = round(np.median(sim_total))
+        over_pct = np.mean(sim_total > median_total) * 100
+        under_pct = 100 - over_pct
+
+        t1, t2, t3 = st.columns(3)
+        t1.metric("Simulated Total", median_total)
+        t2.metric("Over Probability", f"{over_pct:.1f}%")
+        t3.metric("Under Probability", f"{under_pct:.1f}%")
+
+        st.caption("💡 Enter the sportsbook total below to see where the model stands.")
+        book_total = st.number_input("Sportsbook Total", min_value=100.0, max_value=200.0, step=0.5)
+
+        if book_total:
+            over_vs_book = np.mean(sim_total > book_total) * 100
+            under_vs_book = 100 - over_vs_book
+            if over_vs_book > 55:
+                st.success(f"📈 Model favors the **OVER** ({over_vs_book:.1f}% of simulations went over {book_total})")
+            elif under_vs_book > 55:
+                st.success(f"📉 Model favors the **UNDER** ({under_vs_book:.1f}% of simulations went under {book_total})")
+            else:
+                st.info(f"🤷 Model sees this as a toss up — {over_vs_book:.1f}% over, {under_vs_book:.1f}% under")
 
         st.divider()
         st.markdown("#### 📈 Score Distribution (80% confidence range)")
@@ -155,4 +174,4 @@ else:
 
         st.markdown(f"**{team_a}:** {int(np.percentile(sim_a, 10))} – {int(np.percentile(sim_a, 90))} points")
         st.markdown(f"**{team_b}:** {int(np.percentile(sim_b, 10))} – {int(np.percentile(sim_b, 90))} points")
-        st.markdown(f"**Total:** {int(np.percentile(sim_a + sim_b, 10))} – {int(np.percentile(sim_a + sim_b, 90))} points")
+        st.markdown(f"**Total:** {int(np.percentile(sim_total, 10))} – {int(np.percentile(sim_total, 90))} points")

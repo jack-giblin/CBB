@@ -3,13 +3,13 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
-st.title("🏀 CBB 2026 Score Predictor")
+st.title("🏀 CBB 2026 March Madness Predictor")
 
 st.caption("""
-    This program forecasts games using KenPom statistical metrics through statistical analysis. 
+    **This program forecasts games using KenPom statistical metrics through statistical analysis. 
     It accounts for team efficiency on both sides of the ball, pace of play, shooting, turnovers, 
     rebounding, and free throws — but does not factor in injuries, sportsbook shading, 
-    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨
+    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨**
 """)
 
 # --- Add real results here after each game ---
@@ -72,10 +72,7 @@ else:
     st.markdown("#### ⏱️ Adjusted Tempo")
     st.caption("""
         **What is Adjusted Tempo?** KenPom's Adjusted Tempo (ADJ_T) estimates how many possessions 
-        per 40 minutes a team would play against an average Division I opponent. Unlike raw possessions 
-        per game, it removes the influence of opponents — so a slow team that played an unusually fast 
-        schedule won't look artificially up-tempo. This gives us a fairer, more accurate picture of 
-        each team's true pace of play.
+        per 40 minutes a team would play against an average Division I opponent. 
     """)
 
     p1, p2, p3 = st.columns(3)

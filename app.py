@@ -19,6 +19,9 @@ st.markdown("Enter the sportsbook total to find an edge on the Over/Under.")
 
 df, teams = load_data()
 
+# Temporary debug line - check your terminal for this output
+print(df[['TEAM','ADJOE','ADJDE','FTR','FTRD','ADJ_T']].head(5))
+
 if not teams:
     st.error("Missing 'cbb26.csv' in your GitHub repository!")
 else:

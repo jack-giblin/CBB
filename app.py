@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
-st.title("🏀 CBB 2026 Score Predictor")
+st.title("🏀 CBB 2026 March Madness Predictor")
 
 st.caption(""" 🚨
     **This program forecasts games using KenPom metrics through statistical analysis. 

@@ -48,15 +48,7 @@ else:
     p2.metric(f"{team_b} ADJ_T", f"{t2['ADJ_T']}")
     p3.metric("Projected Game Tempo", f"{auto_pace}")
 
-    st.divider()
-    st.markdown("#### 🚨 Quick Notes")
-    st.caption("""
-        **It's worth noting.** Our predicted outcomes are based on pure statistical analysis. 
-        This program does not take into account injuries or any other external factors. 
-        Sportsbooks tend to shade lines based on public betting. These outcomes are based wholly on numbers.
-    """)
-
-    if auto_pace <= 66:
+      if auto_pace <= 66:
         st.caption("🐢 Slow tempo — expect a grind, defensive battle likely.")
     elif auto_pace <= 70:
         st.caption("🏀 Tournament average — March Madness historically averages 68–69 adjusted tempo.")
@@ -70,6 +62,15 @@ else:
     if st.button("Predict Score", use_container_width=True):
 
         pace = auto_pace
+
+    st.divider()
+    st.markdown("#### 🚨 Quick Notes")
+    st.caption("""
+        **It's worth noting.** Our predicted outcomes are based on pure statistical analysis. 
+        This program does not take into account injuries or any other external factors. 
+        Sportsbooks tend to shade lines based on public betting. These outcomes are based wholly on numbers.
+    """)
+
 
         # Base efficiency score
         # Dividing by avg_efficiency removes double-counting of average

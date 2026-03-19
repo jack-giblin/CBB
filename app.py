@@ -106,8 +106,8 @@ else:
         pace = auto_pace
 
         # Score prediction
-        score_a = ((t1['ADJOE'] / 100) + (t2['ADJDE'] / 100)) / 1.9 * pace
-        score_b = ((t2['ADJOE'] / 100) + (t1['ADJDE'] / 100)) / 1.9 * pace
+        score_a = ((t1['ADJOE'] / 100) + (t2['ADJDE'] / 100)) / 1.89 * pace
+        score_b = ((t2['ADJOE'] / 100) + (t1['ADJDE'] / 100)) / 1.89 * pace
 
         # Win probability from BARTHAG
         barthag_a = t1['BARTHAG']

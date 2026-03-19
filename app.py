@@ -3,13 +3,13 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(page_title="CBB Predictor", page_icon="🏀")
-st.title("🏀 CBB 2026 March Madness Predictor")
+st.title("🏀 CBB 2026 Score Predictor")
 
 st.caption("""
-    **This program forecasts games using KenPom metrics through statistical analysis. 
+    This program forecasts games using KenPom statistical metrics through statistical analysis. 
     It accounts for team efficiency on both sides of the ball, pace of play, shooting, turnovers, 
     rebounding, and free throws — but does not factor in injuries, sportsbook shading, 
-    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨**
+    coaching adjustments, or the chaos that makes March Madness unpredictable. 🚨
 """)
 
 # --- Add real results here after each game ---
@@ -19,29 +19,9 @@ results = [
     #     "team_b": "Ohio State",
     #     "predicted_total": 150.5,
     #     "sportsbook_total": 144.5,
-    #     "predicted_winner": "Ohio State",
     #     "actual_score_a": 67,
     #     "actual_score_b": 71,
-    #     "actual_winner": "Ohio State"
     # },
-    {
-        "team_a": "TCU",
-        "team_b": "Ohio State",
-        "predicted_total": 150.5,
-        "sportsbook_total": 146.5,
-        "actual_score_a": 66,
-        "actual_score_b": 64,
-    },
-    {
-        "team_a": "Troy",
-        "team_b": "Nebraska",
-        "predicted_total": 142.0,
-        "sportsbook_total": 137.5,
-        "predicted_winner": "Nebraska",
-        "actual_score_a": 47,
-        "actual_score_b": 76,
-        "actual_winner": "Nebraska"
-    },
 ]
 
 @st.cache_data
@@ -80,7 +60,10 @@ else:
     st.markdown("#### ⏱️ Adjusted Tempo")
     st.caption("""
         **What is Adjusted Tempo?** KenPom's Adjusted Tempo (ADJ_T) estimates how many possessions 
-        per 40 minutes a team would play against an average Division I opponent. 
+        per 40 minutes a team would play against an average Division I opponent. Unlike raw possessions 
+        per game, it removes the influence of opponents — so a slow team that played an unusually fast 
+        schedule won't look artificially up-tempo. This gives us a fairer, more accurate picture of 
+        each team's true pace of play.
     """)
 
     p1, p2, p3 = st.columns(3)
@@ -173,37 +156,26 @@ else:
     # --- Real Results Section ---
     st.divider()
     st.markdown("#### 📋 Real Results vs Predictions")
-    st.caption("""
-        **Round 64 Results:** 
-    """)
 
     if not results:
         st.caption("No results yet — check back after games are played.")
     else:
         total_bets = 0
         total_wins = 0
-        winner_bets = 0
-        winner_wins = 0
 
         for r in results:
             actual_total = r["actual_score_a"] + r["actual_score_b"]
 
-            # Total bet logic
             model_side = "OVER" if r["predicted_total"] > r["sportsbook_total"] else "UNDER"
             if model_side == "OVER":
-                total_result = "✅ WIN" if actual_total > r["sportsbook_total"] else "❌ LOSS"
                 total_win = actual_total > r["sportsbook_total"]
             else:
-                total_result = "✅ WIN" if actual_total < r["sportsbook_total"] else "❌ LOSS"
                 total_win = actual_total < r["sportsbook_total"]
 
-
+            total_result = "✅ WIN" if total_win else "❌ LOSS"
             total_bets += 1
-            winner_bets += 1
             if total_win:
                 total_wins += 1
-            if winner_correct:
-                winner_wins += 1
 
             st.markdown(f"**{r['team_a']} vs {r['team_b']}**")
 
@@ -212,7 +184,7 @@ else:
             c2.metric("Book Total", r["sportsbook_total"])
             c3.metric("Actual Total", actual_total)
 
-            st.markdown(f"Model was on the **{model_side}** → {total_result} (actual {actual_total} vs book {r['sportsbook_total']})")
-            st.markdown(f"Predicted winner: **{r['predicted_winner']}** → {winner_result} (actual winner: {r['actual_winner']})")
+            st.markdown(f"Model was on the **{model_side}** → {total_result}")
             st.divider()
-st.markdown(f"**📊 Record: Totals {total_wins}-{total_bets - total_wins} | Winners {winner_wins}-{winner_bets - winner_wins}**")
+
+        st.markdown(f"**📊 Totals Record: {total_wins}-{total_bets - total_wins}**")

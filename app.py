@@ -40,10 +40,7 @@ else:
     st.markdown("#### ⏱️ Adjusted Tempo")
     st.caption("""
         **What is Adjusted Tempo?** KenPom's Adjusted Tempo (ADJ_T) estimates how many possessions 
-        per 40 minutes a team would play against an average Division I opponent. Unlike raw possessions 
-        per game, it removes the influence of opponents — so a slow team that played an unusually fast 
-        schedule won't look artificially up-tempo. This gives us a fairer, more accurate picture of 
-        each team's true pace of play.
+        per 40 minutes a team would play against an average Division I opponent. 
     """)
 
     p1, p2, p3 = st.columns(3)

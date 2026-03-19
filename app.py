@@ -175,7 +175,7 @@ else:
     # --- Real Results Section ---
     st.divider()
     st.markdown("#### 📋 Real Results vs Predictions")
-    st.markdown(f"**📊 Record: Totals {total_wins}-{total_bets - total_wins} | Winners {winner_wins}-{winner_bets - winner_wins}**")
+st.markdown(f"**📊 Record: Totals {total_wins}-{total_bets - total_wins} | Winners {winner_wins}-{winner_bets - winner_wins}**")
     st.caption("""
         **Round 64 Results:** 
     """)

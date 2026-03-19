@@ -29,10 +29,8 @@ results = [
         "team_b": "Ohio State",
         "predicted_total": 150.5,
         "sportsbook_total": 146.5,
-        "predicted_winner": "Ohio State",
         "actual_score_a": 66,
         "actual_score_b": 64,
-        "actual_winner": "TCU"
     },
     {
         "team_a": "Troy",

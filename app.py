@@ -16,8 +16,6 @@ def load_data():
 
 df, teams = load_data()
 
-st.write(df[['TEAM','ADJOE','ADJDE','EFG_O','EFG_D','TOR','TORD','ORB','DRB']].head(3))
-
 if not teams:
     st.error("Error: 'cbb26.csv' not found in the repository.")
 else:
@@ -61,22 +59,25 @@ else:
         base_a = (t1['ADJOE'] / 100) * (t2['ADJDE'] / 100) * pace
         base_b = (t2['ADJOE'] / 100) * (t1['ADJDE'] / 100) * pace
 
-        # Additive adjustments
-        efg_adj_a = (t1['EFG_O'] - t2['EFG_D']) * 0.3
-        efg_adj_b = (t2['EFG_O'] - t1['EFG_D']) * 0.3
+        # EFG adjustment (stored as percentage e.g. 56.8)
+        efg_adj_a = (t1['EFG_O'] - t2['EFG_D']) * 0.15
+        efg_adj_b = (t2['EFG_O'] - t1['EFG_D']) * 0.15
 
-        tor_adj_a = (t2['TORD'] - t1['TOR']) * 0.2
-        tor_adj_b = (t1['TORD'] - t2['TOR']) * 0.2
+        # Turnover adjustment
+        tor_adj_a = (t2['TORD'] - t1['TOR']) * 0.1
+        tor_adj_b = (t1['TORD'] - t2['TOR']) * 0.1
 
-        reb_adj_a = (t1['ORB'] - t2['DRB']) * 0.1
-        reb_adj_b = (t2['ORB'] - t1['DRB']) * 0.1
+        # Rebounding adjustment
+        reb_adj_a = (t1['ORB'] - t2['DRB']) * 0.05
+        reb_adj_b = (t2['ORB'] - t1['DRB']) * 0.05
 
+        # Final base scores
         score_a = base_a + efg_adj_a + tor_adj_a + reb_adj_a
         score_b = base_b + efg_adj_b + tor_adj_b + reb_adj_b
 
-        # --- Monte Carlo Simulation ---
+        # Monte Carlo simulation (10,000 games)
         simulations = 10000
-        std_dev = 7  # typical college basketball score variance
+        std_dev = 7
 
         sim_a = np.random.normal(score_a, std_dev, simulations)
         sim_b = np.random.normal(score_b, std_dev, simulations)
@@ -84,15 +85,17 @@ else:
         win_pct_a = np.mean(sim_a > sim_b) * 100
         win_pct_b = 100 - win_pct_a
 
+        avg_a = np.mean(sim_a)
+        avg_b = np.mean(sim_b)
         avg_total = np.mean(sim_a + sim_b)
-        over_pct = np.mean((sim_a + sim_b) > avg_total) * 100
 
-        # --- Display Results ---
+        # Main prediction
+        winner = team_a if avg_a > avg_b else team_b
+
         c1, c2 = st.columns(2)
-        c1.metric(team_a, round(score_a))
-        c2.metric(team_b, round(score_b))
+        c1.metric(team_a, round(avg_a))
+        c2.metric(team_b, round(avg_b))
 
-        winner = team_a if score_a > score_b else team_b
         st.success(f"🏆 **Prediction:** {winner} wins!")
         st.info(f"📊 **Projected Total:** {round(avg_total)} points")
 
@@ -104,16 +107,9 @@ else:
         m2.metric(f"{team_b} Win Probability", f"{win_pct_b:.1f}%")
 
         st.divider()
-        st.markdown("#### 📈 Score Distribution")
+        st.markdown("#### 📈 Score Distribution (80% confidence range)")
 
-        sim_df = pd.DataFrame({
-            team_a: sim_a,
-            team_b: sim_b,
-            'Total': sim_a + sim_b
-        })
-
-        st.markdown(f"**{team_a} score range:** {int(np.percentile(sim_a, 10))} – {int(np.percentile(sim_a, 90))} (80% of simulations)")
-        st.markdown(f"**{team_b} score range:** {int(np.percentile(sim_b, 10))} – {int(np.percentile(sim_b, 90))} (80% of simulations)")
-        st.markdown(f"**Total range:** {int(np.percentile(sim_a + sim_b, 10))} – {int(np.percentile(sim_a + sim_b, 90))} (80% of simulations)")
-
+        st.markdown(f"**{team_a}:** {int(np.percentile(sim_a, 10))} – {int(np.percentile(sim_a, 90))} points")
+        st.markdown(f"**{team_b}:** {int(np.percentile(sim_b, 10))} – {int(np.percentile(sim_b, 90))} points")
+        st.markdown(f"**Total:** {int(np.percentile(sim_a + sim_b, 10))} – {int(np.percentile(sim_a + sim_b, 90))} points")
 
